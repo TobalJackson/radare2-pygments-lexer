@@ -21,9 +21,22 @@ class Radare2Lexer(RegexLexer):
         'root': [
             (r'\n', Text),
             (r'^\[', Text, 'cmdprompt'),
+            (r'^sys', String, 'dmoutput'),
             (r'0[Xx]',String, 'addroutput'),
-            (r'^/|\||\\', Keyword, 'pdoutput'),
-            (r'^[^[]', Text, 'stroutput')
+            (r'^[|\\/ ]', Keyword, 'pdoutput'),
+            (r'^[^[]', Text, 'stroutput'),
+        ],
+
+        'dmoutput': [
+        #    #(r'(\s+)([0-9.]+)(.)(\s)(0[Xx][0-9a-f]+)(\s)(.)(\s)(0[Xx][0-9a-f])(\s)(.)(\s)([-rwx]+)(\s)
+            (r'[0-9.]+(?:M|K)', Keyword),
+            (r'0[Xx][0-9a-f]+', Number.Hex),
+            (r'\bs\b', Text),
+            (r'[rwx-]{4}', Operator),
+            #(r'-|\*|/|_', Operator),
+            (r'[-*/_.;[\]]', Operator),
+            (r' ', Text),
+            (r'[A-Za-z0-9]+', Text)
         ],
 
         'pdoutput': [
@@ -39,10 +52,12 @@ class Radare2Lexer(RegexLexer):
             (r'(0[Xx][0-9a-f]{8,})([ ]+)([0-9a-f]+)([ ]+)', bygroups(String, Text, Text, Text)),
             include('stackops'),
             include('arithmeticops'),
+            include('logicops'),
             include('ipops'),
             include('otherops'),
             include('registers'),
             (r'0[Xx][0-9a-f]+', Number.Hex),
+            (r'[0-9a-f]', Number)
         ],
 
         'registers': [
@@ -73,13 +88,18 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'otherops': [
-            (words(('nop', 'dword', 'local_', '[', 'h]', '-')),
+            (words(('nop', 'dword', 'local_', '[', 'h]', ']', '-', '+')),
             Text)
         ],
 
         'stackops': [
             (words(('push', 'pop'), prefix=r'\b', suffix=r'\b'),
             Keyword)
+        ],
+
+        'logicops': [
+            (words(('and', 'or', 'not'), suffix=r'\b', prefix=r'\b'),
+            String)
         ],
 
         'arithmeticops': [
