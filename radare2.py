@@ -60,10 +60,6 @@ class Radare2Lexer(RegexLexer):
             (r'[0-9a-f]', Number)
         ],
 
-        'registers': [
-            (words(('esp', 'ebp', 'eax', 'ebx', 'ecx', 'edx')),
-            Text)
-        ],
 
         'comment': [
             (r'.+$', Comment, '#pop')
@@ -81,14 +77,19 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'stroutput': [
-            (r'[A-Za-z%]+', Text),
+            (r'[A-Za-z%_)]+', Text),
             (r' ', Text),
             (r'[0-9a-f]+', Number.Hex),
             (r'[.:]', Operator),
         ],
 
+        'registers': [
+            (words(('esp', 'ebp', 'eax', 'ah', 'al', 'ebx', 'bh', 'bl', 'ecx', 'ch', 'cl', 'edx', 'dh', 'dl', 'edi', 'esi')),
+            Keyword)
+        ],
+
         'otherops': [
-            (words(('nop', 'dword', 'local_', '[', 'h]', ']', '-', '+')),
+            (words(('byte', 'sbb', 'clc', 'nop', 'dword', 'local_', '[', 'h]', ']', '-', '+')),
             Text)
         ],
 
