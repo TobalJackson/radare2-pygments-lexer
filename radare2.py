@@ -40,7 +40,9 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'pdoutput': [
+            (r'--', Text, 'stroutput'),
             (r'/|\||\\', Keyword),
+            (r'[,`][=-]+[<>]', Keyword),
             (r' ', Text),
             (r';$', Text),
             (r',', Operator),
@@ -49,7 +51,7 @@ class Radare2Lexer(RegexLexer):
             (r'([A-Za-z]{3})(\.)([A-Za-z]{3})(\.)(\w+)', bygroups(Keyword, Operator, Keyword, Operator, Text)),
             (r'([A-Za-z]{3})(\.)(\w+)', bygroups(Keyword, Operator, Text)),
             (r'\(\)', Text),
-            (r'(0[Xx][0-9a-f]{8,})([ ]+)([0-9a-f]+)([ ]+)', bygroups(String, Text, Text, Text)),
+            (r'(0[Xx][0-9a-f]{8,})([ ]+)([0-9a-f]+\.?)([ ]+)', bygroups(String, Text, Text, Text)),
             include('stackops'),
             include('arithmeticops'),
             include('logicops'),
@@ -66,8 +68,8 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'cmdprompt': [
-            (r'(0[xX][0-9a-f]+)(\])(>)(\s+)(\w+)?(.*)$', bygroups(Number.Hex, Text, Operator, Text, Name.Function, Text)),
-            (r'.+$', Text)
+            (r'(0[xX][0-9a-f]+)(\])(>)(\s+)(\w+)?(.*)', bygroups(Number.Hex, Text, Operator, Text, Name.Function, Text)),
+            (r'.+', Text)
         ],
 
         'addroutput': [
@@ -77,19 +79,20 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'stroutput': [
-            (r'[A-Za-z%_)]+', Text),
+            (r'[A-Za-z%_)<>]+', Text),
             (r' ', Text),
             (r'[0-9a-f]+', Number.Hex),
-            (r'[.:]', Operator),
+            (r'[.:+/-]', Operator),
+            (r'[|]', Keyword),
         ],
 
         'registers': [
-            (words(('esp', 'ebp', 'eax', 'ah', 'al', 'ebx', 'bh', 'bl', 'ecx', 'ch', 'cl', 'edx', 'dh', 'dl', 'edi', 'esi')),
+            (words(('rsp', 'esp', 'spl', 'rbp', 'ebp', 'bpl', 'rax', 'eax', 'ah', 'al', 'rbx', 'ebx', 'bh', 'bl', 'rcx', 'ecx', 'ch', 'cl', 'rdx', 'edx', 'dh', 'dl', 'rdi', 'edi', 'dil', 'rsi', 'esi', 'sil', 'r15', 'r14', 'r13', 'r12', 'r10', 'fs:', 'gs:')),
             Keyword)
         ],
 
         'otherops': [
-            (words(('byte', 'sbb', 'clc', 'nop', 'dword', 'local_', '[', 'h]', ']', '-', '+')),
+            (words(('byte', 'sbb', 'clc', 'nop', '.qword', 'qword', 'dword', 'local_', '[', 'h]', ']', '-', '+')),
             Text)
         ],
 
@@ -99,7 +102,7 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'logicops': [
-            (words(('and', 'or', 'not'), suffix=r'\b', prefix=r'\b'),
+            (words(('and', 'or', 'not', 'xor', 'cmp'), suffix=r'\b', prefix=r'\b'),
             String)
         ],
 
