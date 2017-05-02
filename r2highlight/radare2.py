@@ -93,7 +93,7 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'registers': [
-            (words(('rsp', 'esp', 'spl', 'rbp', 'ebp', 'bpl', 'rax', 'eax', 'ah', 'al', 'rbx', 'ebx', 'bh', 'bl', 'rcx', 'ecx', 'cx', 'ch', 'cl', 'rdx', 'edx', 'dx', 'dh', 'dl', 'rdi', 'edi', 'dil', 'rsi', 'esi', 'sil', 'r15', 'r14', 'r13', 'r12', 'r10', 'fs:', 'gs:')),
+            (words(('rsp', 'esp', 'spl', 'rbp', 'ebp', 'bpl', 'rax', 'eax', 'ah', 'al', 'rbx', 'ebx', 'bh', 'bl', 'rcx', 'ecx', 'cx', 'ch', 'cl', 'rdx', 'edx', 'dx', 'dh', 'dl', 'rdi', 'edi', 'dil', 'rsi', 'esi', 'sil', 'r15', 'r14', 'r13', 'r12', 'r10', 'r9', 'r9d', 'r8', 'fs:', 'gs:')),
             Keyword)
         ],
 
@@ -113,12 +113,12 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'arithmeticops': [
-            (words(('leave', 'mov', 'lea', 'add', 'sub', 'imul', 'mul', 'shl', 'shr', 'sar', 'sal'), suffix=r'\b', prefix=r'\b'),
+            (words(('leave', 'mov', 'movzx', 'movsx', 'lea', 'add', 'sub', 'imul', 'mul', 'shl', 'shr', 'sar', 'sal'), suffix=r'\b', prefix=r'\b'),
             Operator)
         ],
 
         'ipops': [
-            (words(('jmp', 'jne', 'jae', 'jbe', 'call', 'ret'), suffix=r'\b', prefix=r'\b'),
+            (words(('je', 'jmp', 'jne', 'jae', 'jbe', 'call', 'ret'), suffix=r'\b', prefix=r'\b'),
             Name.Function)
         ]
     }
