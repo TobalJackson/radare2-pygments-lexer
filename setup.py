@@ -9,7 +9,7 @@ setup(
     name = "r2highlight",
     version = "0.0.0",
     description = __doc__,
-    author = "Tobal Jackson",
+    author = "TobalJackson",
     packages = ['r2highlight'],
     entry_points = entry_points
 )
