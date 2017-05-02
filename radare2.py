@@ -24,7 +24,13 @@ class Radare2Lexer(RegexLexer):
             (r'^sys', String, 'dmoutput'),
             (r'0[Xx]',String, 'addroutput'),
             (r'^[|\\/ ]', Keyword, 'pdoutput'),
+            (r'^-> % ', Keyword, 'bashprompt'),
             (r'^[^[]', Text, 'stroutput'),
+        ],
+
+        'bashprompt': [
+            (r'[^|\n]+', Text),
+            (r'\|', Operator)
         ],
 
         'dmoutput': [
@@ -81,18 +87,18 @@ class Radare2Lexer(RegexLexer):
         'stroutput': [
             (r'[A-Za-z%_)<>]+', Text),
             (r' ', Text),
-            (r'[0-9a-f]+', Number.Hex),
+            (r'(?:0[Xx])?[0-9a-f]+', Number.Hex),
             (r'[.:+/-]', Operator),
             (r'[|]', Keyword),
         ],
 
         'registers': [
-            (words(('rsp', 'esp', 'spl', 'rbp', 'ebp', 'bpl', 'rax', 'eax', 'ah', 'al', 'rbx', 'ebx', 'bh', 'bl', 'rcx', 'ecx', 'ch', 'cl', 'rdx', 'edx', 'dh', 'dl', 'rdi', 'edi', 'dil', 'rsi', 'esi', 'sil', 'r15', 'r14', 'r13', 'r12', 'r10', 'fs:', 'gs:')),
+            (words(('rsp', 'esp', 'spl', 'rbp', 'ebp', 'bpl', 'rax', 'eax', 'ah', 'al', 'rbx', 'ebx', 'bh', 'bl', 'rcx', 'ecx', 'cx', 'ch', 'cl', 'rdx', 'edx', 'dx', 'dh', 'dl', 'rdi', 'edi', 'dil', 'rsi', 'esi', 'sil', 'r15', 'r14', 'r13', 'r12', 'r10', 'fs:', 'gs:')),
             Keyword)
         ],
 
         'otherops': [
-            (words(('byte', 'sbb', 'clc', 'nop', '.qword', 'qword', 'dword', 'local_', '[', 'h]', ']', '-', '+')),
+            (words(('in', 'byte', 'sbb', 'clc', 'nop', '.qword', 'qword', 'dword', 'local_', '[', 'h]', ']', '-', '+')),
             Text)
         ],
 
