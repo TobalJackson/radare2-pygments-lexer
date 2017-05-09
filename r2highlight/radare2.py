@@ -29,8 +29,11 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'bashprompt': [
-            (r'[^|\n]+', Text),
-            (r'\|', Operator)
+            (r'^-> % ', Keyword, 'bashprompt'),
+            (r'[\n ]', Text),
+            (r'[./]', Operator, 'bashprompt'),
+            (r'[^|\n ]+', Text, 'bashprompt'),
+            (r'\|', Operator, 'bashprompt')
         ],
 
         'dmoutput': [
