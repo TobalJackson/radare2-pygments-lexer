@@ -58,6 +58,7 @@ class Radare2Lexer(RegexLexer):
             (r'([A-Za-z]{3})(\.)(\w+)', bygroups(Keyword, Operator, Text)),
             (r'\(\)', Text),
             (r'(0[Xx][0-9a-f]{8,})([ ]+)([0-9a-f]+\.?)([ ]+)', bygroups(String, Text, Text, Text)),
+            (r'(0[Xx][0-9a-f]{8,})([ ]+)(\.?[A-Za-z0-9]+)([ ]+)(0[Xx][0-9a-f]{8,})', bygroups(String, Text, Keyword, Text, Number.Hex)),
             include('stackops'),
             include('arithmeticops'),
             include('logicops'),
@@ -88,7 +89,7 @@ class Radare2Lexer(RegexLexer):
             (r'[A-Za-z%_)<>]+', Text),
             (r' ', Text),
             (r'(?:0[Xx])?[0-9a-f]+', Number.Hex),
-            (r'[.:+/-]', Operator),
+            (r'[.:+/=-]', Operator),
             (r'[|]', Keyword),
         ],
 
