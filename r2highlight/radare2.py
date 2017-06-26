@@ -32,6 +32,7 @@ class Radare2Lexer(RegexLexer):
             (r'^-> % ', Keyword, 'bashprompt'),
             (r'[\n ]', Text),
             (r'[./]', Operator, 'bashprompt'),
+            (r'^\[', Text, 'cmdprompt'),
             (r'[^|\n ]+', Text, 'bashprompt'),
             (r'\|', Operator, 'bashprompt')
         ],
@@ -51,18 +52,19 @@ class Radare2Lexer(RegexLexer):
         'pdoutput': [
             (r'--', Text, 'stroutput'),
             (r'/|\||\\', Keyword),
-            (r'[,`][=-]+[<>]', Keyword),
+            (r'[.,`][=-]+[<>]', Keyword),
             (r' ', Text),
             (r';$', Text),
             (r',', Operator),
             (r';', Comment, 'comment'),
             (r'(\()(.+?)(\))', bygroups(Text, Operator, Text)),
-            (r'([A-Za-z]{3})(\.)([A-Za-z]{3})(\.)(\w+)', bygroups(Keyword, Operator, Keyword, Operator, Text)),
-            (r'([A-Za-z]{3})(\.)(\w+)', bygroups(Keyword, Operator, Text)),
+            (r'([A-Za-z]{3})(\.)([A-Za-z]{3})(\.)([\w.]+)', bygroups(Keyword, Operator, Keyword, Operator, Text)),
+            (r'([A-Za-z]{3})(\.)([\w.]+)', bygroups(Keyword, Operator, Text)),
             (r'\(\)', Text),
             (r'(0[Xx][0-9a-f]{8,})([ ]+)([0-9a-f]+\.?)([ ]+)', bygroups(String, Text, Text, Text)),
             (r'(0[Xx][0-9a-f]{8,})([ ]+)(\.?[A-Za-z0-9]+)([ ]+)(0[Xx][0-9a-f]{8,})', bygroups(String, Text, Keyword, Text, Number.Hex)),
             include('stackops'),
+            include('copyops'),
             include('arithmeticops'),
             include('logicops'),
             include('ipops'),
@@ -78,12 +80,23 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'cmdprompt': [
+            #(r'(0[xX][0-9a-f]+)(\])(>)(\s+)([?])(.*$)', bygroups(Number.Hex, Text, Operator, Text, Name.Function, Text), "mathoutput"),
             (r'(0[xX][0-9a-f]+)(\])(>)(\s+)(\w+)?(.*)', bygroups(Number.Hex, Text, Operator, Text, Name.Function, Text)),
             (r'.+', Text)
         ],
 
+        #'mathoutput': [
+        #    #(r'([-\d])(\s+)(0x[a-f0-9]+)(\s+)(\d+\w)(\s+)(', Comment, '#pop')
+        #    (r'(\d)', bygroups(Number.Hex), "mathoutput"),
+        #    (r'([.-\w])', bygroups(Operator), "mathoutput"),
+        #    (r'(\s)', bygroups(Text), "mathoutput"),
+        #    (r'($)', bygroups(Text), "#pop")
+        #],
+
         'addroutput': [
             (r'([0-9a-f]+)(\s{2})(.+)(\s{2})(.+)$', bygroups(String, Text, Number.Hex, Text, Text)),
+            (r'([0-9a-f]+)(\s*)$', bygroups(String, Text)),
+            (r'([0-9a-f]+)(\s*)(->)(.+)$', bygroups(String, Text, Operator, Text)),
             #(r'^\[', Text, '#pop'),
             #(r'(0[Xx][0-9a-f])(\s+)(.+)$', bygroups(Number.Hex, Text, Text))
         ],
@@ -97,7 +110,7 @@ class Radare2Lexer(RegexLexer):
         ],
 
         'registers': [
-            (words(('rsp', 'esp', 'spl', 'rbp', 'ebp', 'bpl', 'rax', 'eax', 'ah', 'al', 'rbx', 'ebx', 'bh', 'bl', 'rcx', 'ecx', 'cx', 'ch', 'cl', 'rdx', 'edx', 'dx', 'dh', 'dl', 'rdi', 'edi', 'dil', 'rsi', 'esi', 'sil', 'r15', 'r14', 'r13', 'r12', 'r10', 'r9', 'r9d', 'r8', 'fs:', 'gs:')),
+            (words(('rsp', 'esp', 'spl', 'rbp', 'ebp', 'bpl', 'rax', 'eax', 'ah', 'al', 'rbx', 'ebx', 'bh', 'bl', 'rcx', 'ecx', 'cx', 'ch', 'cl', 'rdx', 'edx', 'dx', 'dh', 'dl', 'rdi', 'edi', 'dil', 'rsi', 'esi', 'sil', 'r15', 'r14', 'r13', 'r12', 'r10', 'r9', 'r9d', 'r8', 'r8d', 'fs:', 'gs:', 'cs:')),
             Keyword)
         ],
 
@@ -111,18 +124,23 @@ class Radare2Lexer(RegexLexer):
             Keyword)
         ],
 
+        'copyops': [
+            (words(('mov', 'movzx', 'movsx', 'movabs', 'lea', 'rdtsc'), prefix=r'\b', suffix=r'\b'),
+            Number)
+        ],
+
         'logicops': [
-            (words(('and', 'or', 'not', 'xor', 'cmp'), suffix=r'\b', prefix=r'\b'),
+            (words(('and', 'or', 'not', 'xor', 'cmp', 'word', 'test'), suffix=r'\b', prefix=r'\b'),
             String)
         ],
 
         'arithmeticops': [
-            (words(('leave', 'mov', 'movzx', 'movsx', 'lea', 'add', 'sub', 'imul', 'mul', 'shl', 'shr', 'sar', 'sal'), suffix=r'\b', prefix=r'\b'),
+            (words(('leave', 'add', 'sub', 'imul', 'mul', 'shl', 'shr', 'sar', 'sal'), suffix=r'\b', prefix=r'\b'),
             Operator)
         ],
 
         'ipops': [
-            (words(('je', 'jmp', 'jne', 'jae', 'jbe', 'call', 'ret'), suffix=r'\b', prefix=r'\b'),
+            (words(('je', 'jmp', 'jne', 'jae', 'jbe', 'call', 'ret', 'syscall'), suffix=r'\b', prefix=r'\b'),
             Name.Function)
         ]
     }
